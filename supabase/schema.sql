@@ -14,7 +14,19 @@ create table if not exists model_pricing (
   created_at           timestamptz not null default now()
 );
 
--- One row per LLM request.
+-- Registered accounts. Guests never get a row here — they're identified
+-- only by the random id in their session cookie (see src/lib/auth.ts) — so
+-- this table exists purely so a person can come back on another device.
+create table if not exists app_users (
+  id            uuid primary key default gen_random_uuid(),
+  username      text not null unique,
+  password_hash text not null,
+  created_at    timestamptz not null default now()
+);
+
+-- One row per LLM request. Exactly one of user_id/guest_id is set for a
+-- request made after accounts/guests shipped; both are null for requests
+-- logged before that (there was no identity to attach).
 create table if not exists usage_logs (
   id              uuid primary key default gen_random_uuid(),
   created_at      timestamptz not null default now(),
@@ -28,17 +40,40 @@ create table if not exists usage_logs (
   latency_ms      integer,
   input_preview   text,
   output_preview  text,
-  error_message   text
+  error_message   text,
+  user_id         uuid references app_users (id) on delete set null,
+  guest_id        text
 );
+
+-- Additive migration for installs from before accounts/guests existed —
+-- `create table if not exists` above is a no-op once the table already
+-- exists, so the new columns need adding separately.
+alter table usage_logs add column if not exists user_id uuid references app_users (id) on delete set null;
+alter table usage_logs add column if not exists guest_id text;
 
 create index if not exists usage_logs_created_at_idx on usage_logs (created_at desc);
 create index if not exists usage_logs_model_id_idx on usage_logs (model_id);
+create index if not exists usage_logs_user_id_idx on usage_logs (user_id);
+create index if not exists usage_logs_guest_id_idx on usage_logs (guest_id);
 
--- Per-model rollup used by the dashboard.
-create or replace view usage_summary as
+-- Per-model rollup used by the dashboard. request_count is every attempt
+-- (success + error) so the dashboard's totals never disagree with what the
+-- recent-requests table shows; success_count/error_count break that down.
+-- Token/cost sums stay success-only since failed requests always log 0 for
+-- both (see the route handler's error branch).
+--
+-- Dropped and recreated rather than `create or replace view`: Postgres only
+-- allows `replace` to append columns at the end of the existing list, not
+-- insert them in the middle — doing that here reads as renaming
+-- total_input_tokens and errors with 42P16. Nothing references this view,
+-- so dropping it is safe.
+drop view if exists usage_summary;
+create view usage_summary as
 select
   model_id,
-  count(*) filter (where status = 'success') as request_count,
+  count(*) as request_count,
+  count(*) filter (where status = 'success') as success_count,
+  count(*) filter (where status = 'error') as error_count,
   coalesce(sum(input_tokens) filter (where status = 'success'), 0) as total_input_tokens,
   coalesce(sum(output_tokens) filter (where status = 'success'), 0) as total_output_tokens,
   coalesce(sum(total_tokens) filter (where status = 'success'), 0) as total_tokens,
@@ -51,6 +86,7 @@ group by model_id;
 -- policies are defined, so anon/authenticated callers get nothing).
 alter table model_pricing enable row level security;
 alter table usage_logs enable row level security;
+alter table app_users enable row level security;
 
 -- Seed the current model lineup. Prices are $/1M tokens (see Anthropic pricing).
 insert into model_pricing (model_id, display_name, input_price_per_mtok, output_price_per_mtok)

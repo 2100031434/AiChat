@@ -44,6 +44,8 @@ export interface Database {
           input_preview: string | null;
           output_preview: string | null;
           error_message: string | null;
+          user_id: string | null;
+          guest_id: string | null;
         };
         Insert: {
           id?: string;
@@ -58,6 +60,8 @@ export interface Database {
           input_preview?: string | null;
           output_preview?: string | null;
           error_message?: string | null;
+          user_id?: string | null;
+          guest_id?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["usage_logs"]["Insert"]>;
         Relationships: [
@@ -68,7 +72,30 @@ export interface Database {
             referencedRelation: "model_pricing";
             referencedColumns: ["model_id"];
           },
+          {
+            foreignKeyName: "usage_logs_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "app_users";
+            referencedColumns: ["id"];
+          },
         ];
+      };
+      app_users: {
+        Row: {
+          id: string;
+          username: string;
+          password_hash: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          username: string;
+          password_hash: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["app_users"]["Insert"]>;
+        Relationships: [];
       };
     };
     Views: {
@@ -76,6 +103,8 @@ export interface Database {
         Row: {
           model_id: string;
           request_count: number;
+          success_count: number;
+          error_count: number;
           total_input_tokens: number;
           total_output_tokens: number;
           total_tokens: number;

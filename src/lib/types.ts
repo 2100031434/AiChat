@@ -23,11 +23,15 @@ export interface UsageLog {
   input_preview: string | null;
   output_preview: string | null;
   error_message: string | null;
+  user_id: string | null;
+  guest_id: string | null;
 }
 
 export interface UsageSummaryRow {
   model_id: string;
   request_count: number;
+  success_count: number;
+  error_count: number;
   total_input_tokens: number;
   total_output_tokens: number;
   total_tokens: number;

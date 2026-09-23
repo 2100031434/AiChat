@@ -12,18 +12,18 @@ export function UsageTable({ logs }: { logs: UsageLog[] }) {
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="scroll-shadow overflow-x-auto">
       <table className="w-full min-w-[720px] text-left text-sm">
         <thead>
           <tr className="border-b border-[var(--border)]">
             <th className="eyebrow py-2 pr-4 text-left font-medium">Time</th>
+            <th className="eyebrow py-2 pr-4 text-left font-medium">Status</th>
             <th className="eyebrow py-2 pr-4 text-left font-medium">Model</th>
             <th className="eyebrow py-2 pr-4 text-left font-medium">Type</th>
             <th className="eyebrow py-2 pr-4 text-right font-medium">Input</th>
             <th className="eyebrow py-2 pr-4 text-right font-medium">Output</th>
             <th className="eyebrow py-2 pr-4 text-right font-medium">Total</th>
             <th className="eyebrow py-2 pr-4 text-right font-medium">Cost</th>
-            <th className="eyebrow py-2 pr-4 text-left font-medium">Status</th>
           </tr>
         </thead>
         <tbody>
@@ -31,6 +31,9 @@ export function UsageTable({ logs }: { logs: UsageLog[] }) {
             <tr key={log.id} className="border-b border-[var(--border)] last:border-0">
               <td className="py-2 pr-4 whitespace-nowrap text-[var(--text-secondary)]">
                 {formatDateTime(log.created_at)}
+              </td>
+              <td className="py-2 pr-4">
+                <StatusBadge status={log.status} errorMessage={log.error_message} />
               </td>
               <td className="py-2 pr-4 font-mono text-xs text-[var(--text-primary)]">
                 {log.model_id}
@@ -46,9 +49,6 @@ export function UsageTable({ logs }: { logs: UsageLog[] }) {
                 {formatTokens(log.total_tokens)}
               </td>
               <td className="py-2 pr-4 text-right tabular-nums">{formatCost(log.cost_usd)}</td>
-              <td className="py-2 pr-4">
-                <StatusBadge status={log.status} title={log.error_message ?? undefined} />
-              </td>
             </tr>
           ))}
         </tbody>
@@ -57,20 +57,27 @@ export function UsageTable({ logs }: { logs: UsageLog[] }) {
   );
 }
 
-function StatusBadge({ status, title }: { status: string; title?: string }) {
+function StatusBadge({
+  status,
+  errorMessage,
+}: {
+  status: string;
+  errorMessage?: string | null;
+}) {
   const color = status === "success" ? STATUS_COLORS.good : STATUS_COLORS.critical;
   return (
-    <span
-      title={title}
-      className="inline-flex items-center gap-1.5 text-xs font-medium"
-      style={{ color }}
-    >
-      <span
-        aria-hidden
-        className="h-1.5 w-1.5 rounded-full"
-        style={{ backgroundColor: color }}
-      />
-      {status}
-    </span>
+    <div className="max-w-[14rem]">
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium" style={{ color }}>
+        <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />
+        {status}
+      </span>
+      {/* Shown inline (not just on hover) so the failure reason reaches
+          touch/mobile users, who can't hover a title tooltip. */}
+      {errorMessage && (
+        <p className="mt-0.5 truncate text-xs text-[var(--text-muted)]" title={errorMessage}>
+          {errorMessage}
+        </p>
+      )}
+    </div>
   );
 }

@@ -1,8 +1,19 @@
 import { NextResponse } from "next/server";
 import { runExtraction } from "@/lib/anthropic";
+import { getIdentity, type Identity } from "@/lib/auth";
 import { calculateCost, getModelPricing } from "@/lib/pricing";
 import { getSupabaseAdmin } from "@/lib/supabase";
 import type { ProcessResult, RequestType } from "@/lib/types";
+
+// Every identity kind spends the same shared Anthropic budget, so every
+// kind — including admin — needs a row to attribute cost to. Admin has no
+// database id (it's an env-configured credential, not an app_users row),
+// so it's tagged the same way a guest would be.
+function identityColumns(identity: Identity): { user_id: string | null; guest_id: string | null } {
+  if (identity.kind === "user") return { user_id: identity.id, guest_id: null };
+  if (identity.kind === "guest") return { user_id: null, guest_id: identity.id };
+  return { user_id: null, guest_id: "admin" };
+}
 
 // Give large PDFs room to run without hitting the default function timeout.
 export const maxDuration = 60;
@@ -20,6 +31,14 @@ function truncate(value: string, length: number): string {
 }
 
 export async function POST(request: Request) {
+  const identity = await getIdentity();
+  if (!identity) {
+    return NextResponse.json(
+      { error: "Continue as a guest or log in to run a request." },
+      { status: 401 },
+    );
+  }
+
   let formData: FormData;
   try {
     formData = await request.formData();
@@ -84,6 +103,7 @@ export async function POST(request: Request) {
       latency_ms: latencyMs,
       input_preview: truncate(text || `[PDF: ${(file as File).name}]`, PREVIEW_LENGTH),
       output_preview: truncate(result.outputText, PREVIEW_LENGTH),
+      ...identityColumns(identity),
     });
     if (insertError) {
       console.error("Failed to record usage log:", insertError.message);
@@ -115,6 +135,7 @@ export async function POST(request: Request) {
       latency_ms: latencyMs,
       input_preview: truncate(text || `[PDF: ${(file as File).name}]`, PREVIEW_LENGTH),
       error_message: truncate(message, PREVIEW_LENGTH),
+      ...identityColumns(identity),
     });
     if (insertError) {
       console.error("Failed to record usage log:", insertError.message);

@@ -82,3 +82,20 @@ body {
   text-transform: uppercase;
   color: var(--text-muted);
 }
+
+/* Fades the edges of a horizontally-scrollable container and darkens them
+   further while there's more to scroll toward, so overflow is discoverable
+   without relying on a scrollbar (easy to miss on mobile/trackpad). The
+   `local`-attached gradients are the fade masks that travel with scroll
+   position; the `scroll`-attached ones are the fixed edge indicators. */
+.scroll-shadow {
+  background:
+    linear-gradient(to right, var(--surface) 30%, rgba(255, 255, 255, 0)) left,
+    linear-gradient(to left, var(--surface) 30%, rgba(255, 255, 255, 0)) right,
+    radial-gradient(farthest-side at left, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0)) left,
+    radial-gradient(farthest-side at right, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0)) right;
+  background-repeat: no-repeat;
+  background-color: var(--surface);
+  background-size: 24px 100%, 24px 100%, 10px 100%, 10px 100%;
+  background-attachment: local, local, scroll, scroll;
+}
