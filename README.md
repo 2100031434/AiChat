@@ -23,16 +23,32 @@ Supabase. Includes a dashboard for usage history and spend by model.
 
 ## Setup
 
-### 1. Create a Supabase project
+### 1. Create a Supabase project and apply the schema
 
-Create a project at [supabase.com](https://supabase.com), open the SQL
-editor, and run `supabase/schema.sql`. This creates `model_pricing`,
-`usage_logs`, `app_users`, the `usage_summary` view, and seeds pricing for
-Claude Opus 5, Sonnet 5, and Haiku 4.5.
+Create a project at [supabase.com](https://supabase.com), then apply
+`supabase/migrations/20250923000000_initial_schema.sql` one of two ways:
 
-Already have the schema installed? Re-running `supabase/schema.sql` is
-safe — every statement is idempotent (`create table if not exists`, etc.)
-— and picks up any new columns/views added since your last install.
+**Via the CLI (recommended)** — the Supabase CLI is already a
+devDependency, so no global install is needed:
+
+```bash
+npx supabase login                        # one-time browser auth
+npm run db:link                           # links this repo to your project (asks for the project ref)
+npm run db:push                           # applies every migration in supabase/migrations/
+```
+
+Find your project ref in the Supabase dashboard URL
+(`supabase.com/dashboard/project/<ref>`). Future schema changes go in a new
+file under `supabase/migrations/` (`npx supabase migration new <name>`),
+committed like any other code change, then applied with `npm run db:push`.
+
+**Manually** — paste the migration file's contents into the Supabase SQL
+editor and run it. Every statement is idempotent (`create table if not
+exists`, etc.), so it's also safe to re-run on top of an older install.
+
+Either way, this creates `model_pricing`, `usage_logs`, `app_users`, the
+`usage_summary` view, and seeds pricing for Claude Opus 5, Sonnet 5, and
+Haiku 4.5.
 
 Add another model anytime with:
 
@@ -137,5 +153,7 @@ src/
     pricing.ts                # model lookup + cost calculation
     usage.ts                  # dashboard data fetching, scoped by identity
     types.ts, format.ts, theme.ts
-supabase/schema.sql            # database schema + seed pricing
+supabase/
+  config.toml                   # CLI project config (created by `supabase init`)
+  migrations/                   # versioned schema changes, applied via `npm run db:push`
 ```

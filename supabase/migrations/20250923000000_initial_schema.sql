@@ -1,5 +1,6 @@
 -- LLM usage tracker schema
--- Run this once in the Supabase SQL editor (or via `supabase db push`).
+-- Applied via `npx supabase db push` (or paste into the Supabase SQL editor
+-- for a one-off manual install).
 
 create extension if not exists pgcrypto;
 
