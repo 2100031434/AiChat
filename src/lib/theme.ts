@@ -12,11 +12,15 @@ export const CATEGORICAL_SERIES = [
   "#e34948", // 8 red
 ] as const;
 
+// critical matches DESIGN.md's colors.error (#ee0000) so the "error" status
+// badge reads consistently with the rest of the app's chrome; good/warning/
+// serious are unchanged from the dataviz default (DESIGN.md doesn't cover
+// them — it's a marketing-site analysis, not a status-color system).
 export const STATUS_COLORS = {
   good: "#0ca30c",
-  warning: "#fab219",
+  warning: "#f5a623",
   serious: "#ec835a",
-  critical: "#d03b3b",
+  critical: "#ee0000",
 } as const;
 
 export function seriesColor(index: number): string {

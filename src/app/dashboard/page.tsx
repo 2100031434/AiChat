@@ -31,7 +31,9 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-6 py-10">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Usage dashboard</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
+          Usage dashboard
+        </h1>
         <p className="mt-1 text-sm text-[var(--text-secondary)]">
           Requests, tokens, and estimated spend across all models.
         </p>
@@ -45,9 +47,7 @@ export default async function DashboardPage() {
       </div>
 
       <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
-        <h2 className="mb-4 text-sm font-medium text-[var(--text-secondary)]">
-          Cost by model
-        </h2>
+        <h2 className="eyebrow mb-4">Cost by model</h2>
         <CostByModelChart
           summary={summary}
           modelOrder={models.map((m) => m.model_id)}
@@ -55,9 +55,7 @@ export default async function DashboardPage() {
       </section>
 
       <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
-        <h2 className="mb-4 text-sm font-medium text-[var(--text-secondary)]">
-          Recent requests
-        </h2>
+        <h2 className="eyebrow mb-4">Recent requests</h2>
         <UsageTable logs={logs} />
       </section>
     </div>

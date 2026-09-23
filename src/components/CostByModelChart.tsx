@@ -36,7 +36,7 @@ export function CostByModelChart({
         const widthPct = Math.max(2, (row.total_cost_usd / max) * 100);
         return (
           <div key={row.model_id} className="flex items-center gap-3">
-            <div className="w-32 shrink-0 truncate text-xs text-[var(--text-secondary)]">
+            <div className="w-32 shrink-0 truncate font-mono text-xs text-[var(--text-secondary)]">
               {row.model_id}
             </div>
             <div className="relative h-3 flex-1 overflow-hidden rounded-full bg-[var(--gridline)]/40">

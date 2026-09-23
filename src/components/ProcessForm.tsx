@@ -73,7 +73,9 @@ export function ProcessForm({ models }: { models: ModelPricing[] }) {
   return (
     <div className="mx-auto max-w-3xl px-6 py-10 space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Process text or a PDF</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em] text-[var(--text-primary)]">
+          Process text or a PDF
+        </h1>
         <p className="mt-1 text-sm text-[var(--text-secondary)]">
           Send text and/or a PDF to Claude for extraction or analysis. Every request is
           logged with model, token counts, and estimated cost.
@@ -92,7 +94,7 @@ export function ProcessForm({ models }: { models: ModelPricing[] }) {
             id="model"
             value={modelId}
             onChange={(e) => setModelId(e.target.value)}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+            className="w-full rounded-md border border-[var(--border)] bg-[var(--surface-raised)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
           >
             {models.map((m) => (
               <option key={m.model_id} value={m.model_id}>
@@ -113,7 +115,7 @@ export function ProcessForm({ models }: { models: ModelPricing[] }) {
             value={instruction}
             onChange={(e) => setInstruction(e.target.value)}
             placeholder={DEFAULT_INSTRUCTION_PLACEHOLDER}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] px-3 py-2 text-sm outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]"
+            className="w-full rounded-md border border-[var(--border)] bg-[var(--surface-raised)] px-3 py-2 text-sm outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]"
           />
         </div>
 
@@ -127,7 +129,7 @@ export function ProcessForm({ models }: { models: ModelPricing[] }) {
             onChange={(e) => setText(e.target.value)}
             rows={6}
             placeholder="Paste text to process…"
-            className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] px-3 py-2 text-sm outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]"
+            className="w-full resize-y rounded-md border border-[var(--border)] bg-[var(--surface-raised)] px-3 py-2 text-sm outline-none placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]"
           />
         </div>
 
@@ -140,7 +142,7 @@ export function ProcessForm({ models }: { models: ModelPricing[] }) {
             type="file"
             accept="application/pdf"
             onChange={onFileChange}
-            className="w-full text-sm text-[var(--text-secondary)] file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--accent)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-white"
+            className="w-full text-sm text-[var(--text-secondary)] file:mr-3 file:rounded-md file:border-0 file:bg-[var(--text-primary)] file:px-3 file:py-2 file:text-sm file:font-medium file:text-[var(--on-primary)]"
           />
           {file && (
             <p className="mt-1.5 text-xs text-[var(--text-muted)]">
@@ -150,7 +152,7 @@ export function ProcessForm({ models }: { models: ModelPricing[] }) {
         </div>
 
         {error && (
-          <p className="rounded-lg border border-[var(--critical)]/30 bg-[var(--critical)]/10 px-3 py-2 text-sm text-[var(--critical)]">
+          <p className="rounded-md border border-[var(--critical)]/30 bg-[var(--critical)]/10 px-3 py-2 text-sm text-[var(--critical)]">
             {error}
           </p>
         )}
@@ -158,7 +160,7 @@ export function ProcessForm({ models }: { models: ModelPricing[] }) {
         <button
           type="submit"
           disabled={!canSubmit}
-          className="w-full rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-medium text-white transition-opacity disabled:opacity-40"
+          className="w-full rounded-md bg-[var(--text-primary)] px-4 py-2.5 text-sm font-medium text-[var(--on-primary)] transition-opacity disabled:opacity-40"
         >
           {loading ? "Processing…" : "Run"}
         </button>
@@ -167,14 +169,12 @@ export function ProcessForm({ models }: { models: ModelPricing[] }) {
       {result && (
         <div className="space-y-4">
           <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
-            <h2 className="mb-2 text-sm font-medium text-[var(--text-secondary)]">Result</h2>
+            <h2 className="eyebrow mb-2">Result</h2>
             <p className="whitespace-pre-wrap text-sm leading-relaxed">{result.output}</p>
           </div>
 
           <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
-            <h2 className="mb-3 text-sm font-medium text-[var(--text-secondary)]">
-              Request usage
-            </h2>
+            <h2 className="eyebrow mb-3">Request usage</h2>
             <dl className="grid grid-cols-2 gap-4 sm:grid-cols-5">
               <StatItem label="Model" value={result.usage.model_id} mono={false} />
               <StatItem label="Input tokens" value={formatTokens(result.usage.input_tokens)} />
@@ -195,8 +195,10 @@ export function ProcessForm({ models }: { models: ModelPricing[] }) {
 function StatItem({ label, value, mono = true }: { label: string; value: string; mono?: boolean }) {
   return (
     <div>
-      <dt className="text-xs text-[var(--text-muted)]">{label}</dt>
-      <dd className={`mt-0.5 text-sm font-medium ${mono ? "tabular-nums" : ""}`}>{value}</dd>
+      <dt className="eyebrow">{label}</dt>
+      <dd className={`mt-1 text-sm font-medium text-[var(--text-primary)] ${mono ? "tabular-nums" : ""}`}>
+        {value}
+      </dd>
     </div>
   );
 }

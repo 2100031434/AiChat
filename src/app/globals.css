@@ -1,34 +1,49 @@
 @import "tailwindcss";
 
+/*
+ * Chrome (surfaces, text, borders, radii) follows DESIGN.md — Vercel's
+ * Geist system: near-black ink on a near-white canvas, 1px hairlines
+ * instead of shadows, tight display tracking. Dark values extend the same
+ * ink/canvas logic (not in the source spec, which only covers the light
+ * marketing site). Status colors and chart series colors are a separate,
+ * accessibility-validated system (see src/lib/theme.ts) and are
+ * deliberately NOT reassigned to Vercel's palette.
+ */
 :root {
   color-scheme: light;
-  --page: #f9f9f7;
-  --surface: #fcfcfb;
+  --page: #fafafa; /* colors.canvas */
+  --surface: #ffffff; /* colors.canvas-elevated */
   --surface-raised: #ffffff;
-  --text-primary: #0b0b0b;
-  --text-secondary: #52514e;
-  --text-muted: #898781;
-  --border: rgba(11, 11, 11, 0.1);
-  --gridline: #e1e0d9;
-  --accent: #2a78d6;
+  --text-primary: #171717; /* colors.ink */
+  --text-secondary: #4d4d4d; /* colors.body */
+  --text-muted: #8f8f8f; /* colors.mute */
+  --text-faint: #a1a1a1; /* colors.faint */
+  --border: #ebebeb; /* colors.hairline */
+  --gridline: #f2f2f2; /* colors.hairline-soft */
+  --accent: #0070f3; /* colors.link — reserved for links, focus rings */
+  --on-primary: #ffffff; /* colors.on-primary — text on a filled ink button */
   --good: #0ca30c;
-  --critical: #d03b3b;
+  --critical: #ee0000; /* colors.error */
+  --radius-control: 6px; /* rounded.sm — app/nav controls */
+  --radius-card: 12px; /* rounded.md */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --page: #0d0d0d;
-    --surface: #1a1a19;
-    --surface-raised: #212120;
-    --text-primary: #ffffff;
-    --text-secondary: #c3c2b7;
-    --text-muted: #898781;
-    --border: rgba(255, 255, 255, 0.1);
-    --gridline: #2c2c2a;
-    --accent: #3987e5;
+    --page: #0a0a0a;
+    --surface: #111111;
+    --surface-raised: #171717;
+    --text-primary: #ededed;
+    --text-secondary: #a1a1a1;
+    --text-muted: #8f8f8f;
+    --text-faint: #707070;
+    --border: #2e2e2e;
+    --gridline: #262626;
+    --accent: #0070f3;
+    --on-primary: #0a0a0a;
     --good: #0ca30c;
-    --critical: #e66767;
+    --critical: #ee0000;
   }
 }
 
@@ -39,6 +54,7 @@
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
   --color-border: var(--border);
   --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
@@ -48,9 +64,21 @@
 body {
   background: var(--page);
   color: var(--text-primary);
-  font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-sans), Arial, sans-serif;
 }
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Geist Mono uppercase "eyebrow" — Vercel's convention for labeling a
+   section like a spec sheet (typography.mono-eyebrow). Used for stat-tile
+   labels, table headers, and section headings throughout the dashboard. */
+.eyebrow {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
